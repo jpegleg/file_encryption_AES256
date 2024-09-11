@@ -13,9 +13,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 type Aes256Ctr = Ctr64BE<Aes256>;
 
 fn derive_key(password: &[u8], salt: &[u8], length: usize) -> Vec<u8> {
+    // Cheap but strong enough, especially because the salt can be large.
+    // The salt comes from the "sampler" file, aka the local key half
+    // file, and the CLI password input to the program are combined as the input
+    // to the SHA3 SHAKE256 XOF that creates the secret key material.
     let mut hasher = Shake256::default();
-    hasher.update(password);
     hasher.update(salt);
+    hasher.update(password);
     let mut reader = hasher.finalize_xof();
     let mut key = vec![0u8; length];
     XofReader::read(&mut reader, &mut key);
@@ -26,6 +30,9 @@ fn generate_nonce() -> [u8; 16] {
     let mut nonce = [0u8; 16];
 
     // Reduce the chance of nonce re-use by using time + random data
+    // feature/vulnerability potential with non-random data being used
+    // but time metadata is also a useful thing, too bad it is truncated
+    // to fit with the byte length requirement for the nonce
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let timestamp_nanos = now.as_nanos();
     nonce[0..8].copy_from_slice(&timestamp_nanos.to_le_bytes()[0..8]);
@@ -38,9 +45,7 @@ fn encrypt_file(input_file: &str, output_file: &str, key: &[u8]) -> Result<(), B
     let mut file = File::open(input_file)?;
     let mut data = Vec::new();
     file.read_to_end(&mut data)?;
-
     let nonce = generate_nonce();
-
     let mut cipher = Aes256Ctr::new(key.into(), &nonce.into());
     cipher.apply_keystream(&mut data);
 
