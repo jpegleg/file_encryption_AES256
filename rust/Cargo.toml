@@ -1,0 +1,11 @@
+[package]
+name = "AES256CTR"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rpassword = "7.2"
+aes = "0.8.1"
+ctr = "0.9.2"
+rand = "0.8.5"
+sha3 = "0.10.1"
