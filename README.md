@@ -1,6 +1,6 @@
 # file_encryption_AES256
 
-This project contains CLI tools to interactively encrypt files with AES256 in CTR mode.
+This project contains CLI tools to encrypt files with AES256 in CTR mode.
 
 ⚠️ Security Warning: Hazmat! These tools are not the right tools to use for a complete or standard solution. They implement well tested libraries, but the use of those libraries is not a generic or standardized solution.
 
@@ -19,6 +19,9 @@ The key material for these tools comes from combining two components, a key file
 inputs are combined and input to a SHAKE256 XOF of the required length for AES256. This use of SHAKE might more optimally be
 Aargon2 or HMAC, but these tools use the less security optimized but faster XOF, relying more on the security of having
 two distinct key inputs.
+
+The rust version also has an alternate mode for non-interactive or automated encryption and decryption. This mode
+replaces the interactive password prompt with reading from an environment variable.
 
 WARNING: If bad passwords are used and bad sample files (key files) are used, the encryption is weak. 
 
