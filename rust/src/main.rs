@@ -75,7 +75,7 @@ fn decrypt_file(input_file: &str, output_file: &str, key: &[u8]) -> Result<(), B
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() != 5 {
-        eprintln!("Usage: {} <input_file> <output_file> <sampler_file> <-d or -e>", args[0]);
+        eprintln!("Usage: {} <input_file> <output_file> <sampler_file> < -d, -ad, -e, or -ae >", args[0]);
         process::exit(1);
     }
 
@@ -84,20 +84,47 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sampler_file = &args[3];
     let flag = &args[4];
 
-    let mut skey = Vec::new();
-    File::open(sampler_file)?.read_to_end(&mut skey)?;
-
-    print!("Enter password: ");
-    std::io::stdout().flush()?;
-    let password = read_password()?;
-
-    let key = derive_key(password.as_bytes(), &skey, 32);
-
     match flag.as_str() {
-        "-d" => decrypt_file(input_file, output_file, &key)?,
-        "-e" => encrypt_file(input_file, output_file, &key)?,
+        "-ad" => {
+            let mut skey = Vec::new();
+            File::open(sampler_file)?.read_to_end(&mut skey)?;
+            let strpassword = env::var("TMPAESP").expect("TMPAESP env var not set");
+            let password = strpassword.as_bytes();
+            let key = derive_key(password, &skey, 32);
+            decrypt_file(input_file, output_file, &key)?
+        },
+        "-ae" => {
+            let mut skey = Vec::new();
+            File::open(sampler_file)?.read_to_end(&mut skey)?;
+            let strpassword = env::var("TMPAESP").expect("TMPAESP env var not set");
+            let password = strpassword.as_bytes();
+            let key = derive_key(password, &skey, 32);
+            encrypt_file(input_file, output_file, &key)?
+        },
+        "-d" => {
+            let mut skey = Vec::new();
+            File::open(sampler_file)?.read_to_end(&mut skey)?;
+
+            print!("Enter password: ");
+            std::io::stdout().flush()?;
+            let password = read_password()?;
+
+            let key = derive_key(password.as_bytes(), &skey, 32);
+            decrypt_file(input_file, output_file, &key)?
+        },
+        "-e" => {
+            let mut skey = Vec::new();
+            File::open(sampler_file)?.read_to_end(&mut skey)?;
+
+            print!("Enter password: ");
+            std::io::stdout().flush()?;
+            let password = read_password()?;
+
+            let key = derive_key(password.as_bytes(), &skey, 32);
+            encrypt_file(input_file, output_file, &key)?
+        },
         _ => {
-            eprintln!("Invalid flag. Use -d for decryption or -e for encryption.");
+            eprintln!("Invalid flag. Use -d for decryption or -e for encryption. Use -ad for automatic decryption and -ae for automatic encryption via TMPAESP env var.");
             process::exit(1);
         }
     }
