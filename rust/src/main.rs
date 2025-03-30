@@ -90,7 +90,7 @@ fn decrypt_stdout(input_file: &str, key: &[u8]) -> Result<(), Box<dyn std::error
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() != 5 {
-        eprintln!("Usage: {} <input_file> <output_file> <sampler_file> < -d, -ad, -stdout, or -astdout, -e, or -ae >", args[0]);
+        eprintln!("Usage: {} <input_file> <output_file> <sampler_file> < -d, -ad, -stdout, -astdout, -e, or -ae >", args[0]);
         process::exit(1);
     }
 
