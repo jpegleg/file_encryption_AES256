@@ -99,5 +99,5 @@ One approach is to generate a sample file for each dataset, so if we have 10 com
 The rust version of the program has two additional features:
 
 - automated mode for encryption '-ae' and decryption '-ad' that reads from an environment variable TMPAESP
-- decrypt to stdout instead of writing to a file with '-stdout' and specifying "stdout" (or any word) instead of an output file: `AES256CTR ./foo.e stdout ./sampler.bin -stdout`
-  
+- decrypt to STDOUT instead of writing to a file with '-stdout' and specifying "stdout" (or any word) instead of an output file: `AES256CTR ./foo.e stdout ./sampler.bin -stdout`
+- automated mode decrypt to STDOUT use '-astdout'
