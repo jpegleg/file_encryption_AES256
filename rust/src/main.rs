@@ -100,6 +100,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let flag = &args[4];
 
     match flag.as_str() {
+        "-astdout" => {
+            let mut skey = Vec::new();
+            File::open(sampler_file)?.read_to_end(&mut skey)?;
+            let strpassword = env::var("TMPAESP").expect("TMPAESP env var not set");
+            let password = strpassword.as_bytes();
+            let key = derive_key(password, &skey, 32);
+            decrypt_stdout(input_file, &key)?
+        },
         "-ad" => {
             let mut skey = Vec::new();
             File::open(sampler_file)?.read_to_end(&mut skey)?;
@@ -138,7 +146,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let key = derive_key(password.as_bytes(), &skey, 32);
             decrypt_stdout(input_file, &key)?
         },
-
         "-e" => {
             let mut skey = Vec::new();
             File::open(sampler_file)?.read_to_end(&mut skey)?;
@@ -151,7 +158,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             encrypt_file(input_file, output_file, &key)?
         },
         _ => {
-            eprintln!("Invalid flag. Use -d for decryption or -e for encryption. Use -stdout and replace the output file wih 'stdout' to print the plaintext rather than write to a file.\n Use -ad for automatic decryption and -ae for automatic encryption via TMPAESP env var.");
+            eprintln!("Invalid flag. Use -d for decryption or -e for encryption. Use -stdout and replace the output file wih 'stdout' to print the plaintext rather than write to a file.\nUse -ad for automatic decryption and -ae for automatic encryption via TMPAESP env var. Use -astdout to use TMPAESP and decrypt to stdout instead of a file.");
             process::exit(1);
         }
     }
