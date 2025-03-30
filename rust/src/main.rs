@@ -72,6 +72,21 @@ fn decrypt_file(input_file: &str, output_file: &str, key: &[u8]) -> Result<(), B
     Ok(())
 }
 
+fn decrypt_stdout(input_file: &str, key: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file = File::open(input_file)?;
+    let mut nonce = [0u8; 16];
+    file.read_exact(&mut nonce)?;
+    let mut data = Vec::new();
+    file.read_to_end(&mut data)?;
+
+    let mut cipher = Aes256Ctr::new(key.into(), &nonce.into());
+    cipher.apply_keystream(&mut data);
+
+    println!("{}", String::from_utf8_lossy(&data).to_string());
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() != 5 {
@@ -112,6 +127,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let key = derive_key(password.as_bytes(), &skey, 32);
             decrypt_file(input_file, output_file, &key)?
         },
+        "-stdout" => {
+            let mut skey = Vec::new();
+            File::open(sampler_file)?.read_to_end(&mut skey)?;
+
+            print!("Enter password: ");
+            std::io::stdout().flush()?;
+            let password = read_password()?;
+
+            let key = derive_key(password.as_bytes(), &skey, 32);
+            decrypt_stdout(input_file, &key)?
+        },
+
         "-e" => {
             let mut skey = Vec::new();
             File::open(sampler_file)?.read_to_end(&mut skey)?;
@@ -124,7 +151,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             encrypt_file(input_file, output_file, &key)?
         },
         _ => {
-            eprintln!("Invalid flag. Use -d for decryption or -e for encryption. Use -ad for automatic decryption and -ae for automatic encryption via TMPAESP env var.");
+            eprintln!("Invalid flag. Use -d for decryption or -e for encryption. Use -stdout and replace the output file wih 'stdout' to print the plaintext rather than write to a file.\n Use -ad for automatic decryption and -ae for automatic encryption via TMPAESP env var.");
             process::exit(1);
         }
     }
