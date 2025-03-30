@@ -94,3 +94,10 @@ When using this dual input approach, we must select which input is to be conside
 One approach is to generate a sample file for each dataset, so if we have 10 computers and 3 datasets, we might generate 3 sample files centrally then distribute the sample files to each of the 10 computers. Each dataset can have it's own sample file, separating the secret usage at the data level. The password can be the same or different between computers or datasets and can change on a separate interval than the sample files, reducing wasteful password resetting. Having two different mechanisms to effectively rotate the secret used in the symmetric encryption is a useful property.
 
 
+## Additional features of the rust version
+
+The rust version of the program has two additional features:
+
+- automated mode for encryption '-ae' and decryption '-ad' that reads from an environment variable TMPAESP
+- decrypt to stdout instead of writing to a file with '-stdout' and specifying "stdout" (or any word) instead of an output file: `AES256CTR ./foo.e stdout ./sampler.bin -stdout`
+  
