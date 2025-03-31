@@ -32,7 +32,10 @@ fn generate_nonce() -> [u8; 16] {
     // Reduce the chance of nonce re-use by using time + random data
     // feature/vulnerability potential with non-random data being used
     // but time metadata is also a useful thing, too bad it is truncated
-    // to fit with the byte length requirement for the nonce
+    // to fit with the byte length requirement for the nonce.
+    // The result is that the truncated nanosecond value changes each minute.
+    // But we have 2 ^ 64 random bytes, 18,446,744,073,709,551,616 combinations
+    // available in the 8 appended bytes, so no reason to be concerned.
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let timestamp_nanos = now.as_nanos();
     nonce[0..8].copy_from_slice(&timestamp_nanos.to_le_bytes()[0..8]);
