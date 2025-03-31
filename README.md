@@ -11,7 +11,12 @@ More to be added to this document soon!
 ## Nonces
 
 The rust version has a stronger nonce, but both versions use a unix epoch nanoseconds truncated, combined with random bits.
-This is an area of security risk, but also a neat feature. The files contain time data at the start of the ciphertext.
+This is an area of security risk in some msituations, but also a neat feature. The files contain time data at the start of the ciphertext.
+
+The python version nonce has more time data than the rust version as it is truncated effectiely to the second, but less randomness with only two random bytes.
+The rust version nonce has less time data, effectively to the minute in nanoseconds, and 8 random bytes.
+The rust version is an overall stronger nonce because of the 8 bytes of randomness vs the two bytes of randomness. Even though
+The rust version has a minute span (window for collision) with 2^64 possible random values, vs the python nonce with a second span (window for collision) and 2^16 random values.
 
 ## Key material
 
