@@ -13,7 +13,7 @@ def derive_key(password, salt, length=32):
 def generate_nonce():
     """Generates an 8-byte nonce using timestamp and random data."""
     timestamp = int(time.time() * 1000)
-    timestamp_bytes = timestamp.to_bytes(6, byteorder='little')
+    timestamp_bytes = timestamp.to_bytes(6, byteorder='big')
     random_bytes = os.urandom(2)
     return timestamp_bytes + random_bytes
 
